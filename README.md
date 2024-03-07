@@ -1,78 +1,98 @@
-<a name="introduction"/></a>
+eigenlayer 
 
-# EigenLayer
 
-EigenLayer is a set of smart contracts deployed on Ethereum that enable restaking of assets to secure new services. This repo contains the EigenLayer core contracts, whose currently-supported assets include beacon chain ETH and several liquid staking tokens (LSTs). Users use these contracts to deposit and withdraw these assets, as well as delegate them to operators providing services to AVSs.
+----------------------------------------------------------------
+install go
 
-The most up to date mainnet and testnet deployment addresses can be found on our [docs site](https://docs.eigenlayer.xyz/eigenlayer/deployed-contracts).
 
-## Getting Started
+sudo apt update
 
-* [Documentation](#documentation)
-* [Building and Running Tests](#building-and-running-tests)
+sudo apt upgrade
 
-## Documentation
+wget https://dl.google.com/go/go1.13.5.linux-amd64.tar.gz
 
-### Basics
+sudo tar -C /usr/local/ -xzf go1.13.5.linux-amd64.tar.gz
 
-To get a basic understanding of EigenLayer, check out [You Could've Invented EigenLayer](https://www.blog.eigenlayer.xyz/ycie/). Note that some of the document's content describes features that do not exist yet (like the Slasher). To understand more about how restakers and operators interact with EigenLayer, check out these guides:
-* [Restaking User Guide](https://docs.eigenlayer.xyz/restaking-guides/restaking-user-guide)
-* [Operator Guide](https://docs.eigenlayer.xyz/operator-guides/operator-introduction)
+cd /usr/local/
 
-### Deep Dive
+echo $PATH
 
-The most up-to-date and technical documentation can be found in [/docs](/docs). If you're a shadowy super coder, this is a great place to get an overview of the contracts before diving into the code.
+sudo nano $HOME/.profile
 
-To get an idea of how users interact with these contracts, check out our integration tests: [/src/test/integration](./src/test/integration/).
+export PATH=$PATH:/usr/local/go/bin
 
-## Building and Running Tests
+source .profile
 
-This repository uses Foundry. See the [Foundry docs](https://book.getfoundry.sh/) for more info on installation and usage. If you already have foundry, you can build this project and run tests with these commands:
+cat $HOME/.profile
 
-```
-foundryup
+apt install golang-go
 
-forge build
-forge test
-```
+go version
 
-### Running Fork Tests
+------------------------------------------------------------------
+install docker
 
-We have a few fork tests against ETH mainnet. Passing these requires the environment variable `RPC_MAINNET` to be set. See `.env.example` for an example. Once you've set up your environment, `forge test` should show these fork tests passing.
 
-Additionally, to run all tests in a forked environment, [install yq](https://mikefarah.gitbook.io/yq/v/v3.x/). Then, set up your environment using this script to read from `config.yml`:
+cd ~
 
-`source source-env.sh [goerli|local]`
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-Then run the tests:
 
-`forge test --fork-url [RPC_URL]`
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
 
-### Running Static Analysis
 
-1. Install [solhint](https://github.com/protofire/solhint), then run:
+ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-`solhint 'src/contracts/**/*.sol'`
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
 
-2. Install [slither](https://github.com/crytic/slither), then run:
+docker run hello-world
 
-`slither .`
+-------------------------------------------------------------------
+eigenlayer install
 
-### Generate Inheritance and Control-Flow Graphs
 
-1. Install [surya](https://github.com/ConsenSys/surya/) and graphviz:
+cd ~
 
-```
-npm i -g surya
+curl -sSfL https://raw.githubusercontent.com/layr-labs/eigenlayer-cli/master/scripts/install.sh | sh -s
+export PATH=$PATH:~/bin
 
-apt install graphviz
-```
+eigenlayer operator keys create --key-type ecdsa gemgym
+eigenlayer operator keys create --key-type bls gemgym
 
-2. Then, run:
 
-```
-surya inheritance ./src/contracts/**/*.sol | dot -Tpng > InheritanceGraph.png
+nano operator.yaml
 
-surya mdreport surya_report.md ./src/contracts/**/*.sol
-```
+0xD11d60b669Ecf7bE10329726043B3ac07B380C22
 
+0xc81d3963087Fe09316cd1E032457989C7aC91b19
+
+eigenlayer operator register operator.yaml
+
+eigenlayer operator status operator.yaml
+
+cd ~
+
+git clone https://github.com/Layr-Labs/eigenda-operator-setup.git
+
+cd eigenda-operator-setup
+
+nano .env
+
+mkdir -p $HOME/.eigenlayer/eigenda/logs
+mkdir -p $HOME/.eigenlayer/eigenda/db
+
+./run.sh opt-in
+
+docker compose up -d
+
+docker compose logs -f
